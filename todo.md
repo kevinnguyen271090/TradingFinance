@@ -47,13 +47,13 @@
 - [ ] Filter by symbol and date range
 
 ### Technical Indicators on Charts
-- [ ] Add RSI (Relative Strength Index)
+- [x] Add Fibonacci MAs (MA7, MA13, MA21, MA34, MA55, MA89, MA144, MA233, MA377, MA610)
+- [x] Add RSI (Relative Strength Index)
 - [ ] Add MACD (Moving Average Convergence Divergence)
 - [ ] Add Bollinger Bands
-- [ ] Add SMA (Simple Moving Average)
-- [ ] Add EMA (Exponential Moving Average)
-- [ ] Toggle indicators on/off
-- [ ] Indicator settings panel
+- [x] Toggle indicators on/off
+- [x] Indicator settings panel
+- [x] Color-code MAs for easy identification
 
 ### Binance API Integration
 - [x] API key connection page (in Settings)
@@ -71,13 +71,15 @@
 - [ ] Position tracking
 - [ ] Trade logging
 
-### Goal-Based Strategy (Simplified)
+### Goal-Based Auto Trading
 - [ ] Goal input form (target ROI, capital, timeframe, risk tolerance)
-- [ ] Strategy generator (3 options: Conservative/Moderate/Aggressive)
-- [ ] Strategy details: coin allocation, leverage, entry/exit points
+- [ ] Strategy generator using AI ensemble (3 options: Conservative/Moderate/Aggressive)
+- [ ] Strategy details: coin allocation, position sizing, entry/exit points
 - [ ] Backtesting results display
-- [ ] Disclaimer modal with risk warnings
-- [ ] Strategy activation button
+- [ ] Disclaimer modal with comprehensive risk warnings
+- [ ] Strategy activation and monitoring
+- [ ] Auto trade execution based on AI signals
+- [ ] Real-time trade logs and performance tracking
 
 ### UI/UX
 - [ ] Responsive design (mobile-friendly)

@@ -7,6 +7,8 @@ import * as db from "./db";
 import * as binance from "./binance";
 import * as mlPredictions from "./ml-predictions";
 import { getEnsembleAnalysis, type MarketData } from "./ai-ensemble";
+import { predictions as predictionsTable } from "../drizzle/schema";
+import { desc, and, gte, lte, eq as eqOp } from "drizzle-orm";
 
 export const appRouter = router({
   system: systemRouter,
@@ -287,6 +289,68 @@ export const appRouter = router({
       }))
       .query(async ({ input }) => {
         return db.getHistoricalPrices(input.symbolId, input.interval, input.limit);
+      }),
+  }),
+
+  // Prediction History & Accuracy
+  predictionHistory: router({
+    list: protectedProcedure
+      .input(z.object({
+        symbolId: z.number().optional(),
+        timeframe: z.enum(['short', 'medium', 'long']).optional(),
+        startDate: z.string().optional(), // ISO string
+        endDate: z.string().optional(),
+        limit: z.number().default(50),
+      }))
+      .query(async ({ input }) => {
+        const database = await db.getDb();
+        if (!database) return [];
+
+        const conditions = [];
+        if (input.symbolId) conditions.push(eqOp(predictionsTable.symbolId, input.symbolId));
+        if (input.timeframe) conditions.push(eqOp(predictionsTable.timeframe, input.timeframe));
+        if (input.startDate) conditions.push(gte(predictionsTable.predictionDate, new Date(input.startDate)));
+        if (input.endDate) conditions.push(lte(predictionsTable.predictionDate, new Date(input.endDate)));
+
+        const where = conditions.length > 0 ? and(...conditions) : undefined;
+
+        return await database
+          .select()
+          .from(predictionsTable)
+          .where(where)
+          .orderBy(desc(predictionsTable.predictionDate))
+          .limit(input.limit);
+      }),
+
+    accuracy: protectedProcedure
+      .input(z.object({
+        symbolId: z.number().optional(),
+        timeframe: z.enum(['short', 'medium', 'long']).optional(),
+      }))
+      .query(async ({ input }) => {
+        const database = await db.getDb();
+        if (!database) return { total: 0, correct: 0, accuracy: 0 };
+
+        const conditions = [];
+        if (input.symbolId) conditions.push(eqOp(predictionsTable.symbolId, input.symbolId));
+        if (input.timeframe) conditions.push(eqOp(predictionsTable.timeframe, input.timeframe));
+
+        const where = conditions.length > 0 ? and(...conditions) : undefined;
+
+        const allPredictions = await database
+          .select()
+          .from(predictionsTable)
+          .where(where);
+
+        const correctPredictions = allPredictions.filter(p => p.wasCorrect === true);
+        const completedPredictions = allPredictions.filter(p => p.actualPrice !== null);
+
+        return {
+          total: allPredictions.length,
+          completed: completedPredictions.length,
+          correct: correctPredictions.length,
+          accuracy: completedPredictions.length > 0 ? (correctPredictions.length / completedPredictions.length * 100) : 0,
+        };
       }),
   }),
 });

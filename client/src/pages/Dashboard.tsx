@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { APP_LOGO, APP_TITLE, getLoginUrl } from "@/const";
 import { trpc } from "@/lib/trpc";
-import { ArrowRight, TrendingUp, TrendingDown, Activity, Loader2, ArrowUpRight, ArrowDownRight } from "lucide-react";
+import { ArrowRight, TrendingUp, TrendingDown, Activity, Loader2, ArrowUpRight, ArrowDownRight, History } from "lucide-react";
 import { Link } from "wouter";
 import { useEffect, useState } from "react";
 
@@ -81,6 +81,12 @@ export default function Dashboard() {
           </div>
           <div className="flex items-center gap-4">
             <span className="text-sm text-muted-foreground">Welcome, {user.name}</span>
+            <Button asChild variant="outline" size="sm">
+              <Link href="/predictions">
+                <History className="h-4 w-4 mr-2" />
+                Predictions
+              </Link>
+            </Button>
             <Button asChild variant="outline" size="sm">
               <Link href="/settings">Settings</Link>
             </Button>

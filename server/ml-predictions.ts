@@ -9,6 +9,10 @@
  * Phase 2 will replace this with real ML models (LSTM, Prophet, etc.)
  */
 
+import { getDb } from "./db";
+import { predictions as predictionsTable, symbols } from "../drizzle/schema";
+import { eq } from "drizzle-orm";
+
 export type PredictionTimeframe = 'short' | 'medium' | 'long';
 export type PredictionDirection = 'bullish' | 'bearish' | 'neutral';
 export type TradingSignal = 'strong_buy' | 'buy' | 'hold' | 'sell' | 'strong_sell';
@@ -152,6 +156,33 @@ export async function generateAllPredictions(
   const predictions = await Promise.all(
     timeframes.map(tf => generatePrediction(symbol, currentPrice, priceChange24h, tf))
   );
+
+  // Store predictions in database for history tracking
+  try {
+    const db = await getDb();
+    if (db) {
+      const symbolRecord = await db.select().from(symbols).where(eq(symbols.symbol, symbol)).limit(1);
+      if (symbolRecord.length > 0) {
+        const symbolId = symbolRecord[0].id;
+        
+        // Store each prediction
+        for (const pred of predictions) {
+          await db.insert(predictionsTable).values({
+            symbolId,
+            predictionDate: new Date(),
+            timeframe: pred.timeframe,
+            predictedDirection: pred.direction === 'bullish' ? 'up' : pred.direction === 'bearish' ? 'down' : 'neutral',
+            predictedPrice: pred.targetPrice,
+            confidenceScore: pred.confidence,
+            expectedReturn: pred.priceChange.toFixed(2),
+            modelUsed: "mock-demo",
+          });
+        }
+      }
+    }
+  } catch (error) {
+    console.error("Error storing predictions:", error);
+  }
 
   return predictions;
 }

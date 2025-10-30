@@ -11,6 +11,7 @@ import { useEffect, useRef, useState } from "react";
 import { createChart, ColorType, IChartApi } from 'lightweight-charts';
 import { toast } from "sonner";
 import { AIEnsemblePanel } from "@/components/AIEnsemblePanel";
+import { AdvancedPriceChart } from "@/components/AdvancedPriceChart";
 
 function PredictionsPanel({ symbol, ticker }: { symbol: string; ticker: any }) {
   const currentPrice = ticker ? parseFloat(ticker.lastPrice || '0') : 0;
@@ -431,7 +432,7 @@ export default function SymbolDetail() {
           </TabsList>
 
           <TabsContent value="chart" className="space-y-4">
-            <PriceChart symbol={symbol} />
+            <AdvancedPriceChart symbol={symbol} />
           </TabsContent>
 
           <TabsContent value="analysis" className="space-y-4">

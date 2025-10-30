@@ -10,6 +10,7 @@ import { Link, useParams } from "wouter";
 import { useEffect, useRef, useState } from "react";
 import { createChart, ColorType, IChartApi } from 'lightweight-charts';
 import { toast } from "sonner";
+import { AIEnsemblePanel } from "@/components/AIEnsemblePanel";
 
 function PredictionsPanel({ symbol, ticker }: { symbol: string; ticker: any }) {
   const currentPrice = ticker ? parseFloat(ticker.lastPrice || '0') : 0;
@@ -434,6 +435,7 @@ export default function SymbolDetail() {
           </TabsContent>
 
           <TabsContent value="analysis" className="space-y-4">
+            <AIEnsemblePanel symbol={symbol} ticker={ticker} />
             <PredictionsPanel symbol={symbol} ticker={ticker} />
           </TabsContent>
         </Tabs>

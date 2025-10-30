@@ -6,6 +6,7 @@ import { z } from "zod";
 import * as db from "./db";
 import * as binance from "./binance";
 import * as mlPredictions from "./ml-predictions";
+import { getEnsembleAnalysis, type MarketData } from "./ai-ensemble";
 
 export const appRouter = router({
   system: systemRouter,
@@ -170,6 +171,32 @@ export const appRouter = router({
           console.error('Error fetching klines:', error);
           return [];
         }
+      }),
+  }),
+
+  // AI Ensemble Analysis
+  aiEnsemble: router({
+    analyze: publicProcedure
+      .input(z.object({
+        symbol: z.string(),
+        currentPrice: z.number(),
+        priceChange24h: z.number(),
+        volume24h: z.number(),
+        high24h: z.number(),
+        low24h: z.number(),
+        rsi: z.number().optional(),
+        macd: z.object({
+          value: z.number(),
+          signal: z.number(),
+          histogram: z.number(),
+        }).optional(),
+        sma20: z.number().optional(),
+        sma50: z.number().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const marketData: MarketData = input;
+        const result = await getEnsembleAnalysis(marketData);
+        return result;
       }),
   }),
 

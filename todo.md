@@ -29,6 +29,15 @@
 - [x] Confidence scores and reasoning
 - [x] Buy/Sell/Hold signals
 
+### Multi-AI Ensemble System
+- [x] Integrate Qwen-2.5 for technical analysis
+- [x] Integrate DeepSeek-V3 for risk assessment
+- [x] Create consensus engine (weighted voting)
+- [ ] AI prediction caching and scheduling
+- [x] Display multi-AI analysis on symbol page
+- [x] Show individual AI opinions + consensus
+- [x] Confidence scoring system (>75% threshold)
+
 ### Prediction History & Accuracy Tracking
 - [ ] Store predictions in database with timestamps
 - [ ] Track actual price outcomes

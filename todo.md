@@ -16,8 +16,8 @@
 - [x] User preferences management
 
 ### Market Data & Display
-- [ ] Integrate Binance WebSocket for real-time data
-- [ ] Market overview dashboard
+- [x] Integrate Binance WebSocket for real-time data
+- [x] Market overview dashboard
 - [ ] Symbol detail page with TradingView charts
 - [ ] Price ticker display
 - [ ] Watchlist functionality

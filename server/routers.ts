@@ -99,6 +99,47 @@ export const appRouter = router({
       .query(async ({ input }) => {
         return db.getSymbolBySymbol(input.symbol);
       }),
+
+    // Refresh symbols from Binance API
+    refreshFromBinance: protectedProcedure
+      .mutation(async ({ ctx }) => {
+        // Only allow admin to refresh symbols
+        if (ctx.user.role !== 'admin') {
+          throw new Error('Only admins can refresh symbols');
+        }
+
+        try {
+          const binanceSymbols = await binance.getAllTradingSymbols();
+          const usdtPairs = binanceSymbols.filter((s: any) => 
+            s.symbol.endsWith('USDT') && s.status === 'TRADING'
+          );
+
+          let inserted = 0;
+          for (const symbol of usdtPairs) {
+            const baseAsset = symbol.baseAsset || symbol.symbol.replace('USDT', '');
+            await db.upsertSymbol({
+              symbol: symbol.symbol,
+              name: baseAsset,
+              type: 'crypto',
+              exchange: 'binance',
+              isActive: symbol.status === 'TRADING',
+            });
+            inserted++;
+          }
+
+          return {
+            success: true,
+            count: inserted,
+            message: `Refreshed ${inserted} symbols from Binance`,
+          };
+        } catch (error: any) {
+          return {
+            success: false,
+            count: 0,
+            message: error.message || 'Failed to refresh symbols',
+          };
+        }
+      }),
   }),
 
   // Market data

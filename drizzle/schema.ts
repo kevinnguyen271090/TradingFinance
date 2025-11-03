@@ -264,3 +264,104 @@ export const tradingStrategies = mysqlTable("tradingStrategies", {
 
 export type TradingStrategy = typeof tradingStrategies.$inferSelect;
 export type InsertTradingStrategy = typeof tradingStrategies.$inferInsert;
+
+/**
+ * Share cards - generated images for social sharing
+ */
+export const shareCards = mysqlTable("shareCards", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  cardType: mysqlEnum("cardType", ["prediction_accuracy", "profit_loss", "achievement", "portfolio", "strategy"]).notNull(),
+  imageUrl: text("imageUrl").notNull(), // S3 URL
+  title: varchar("title", { length: 200 }),
+  stats: json("stats").$type<Record<string, any>>(), // Stats displayed on card
+  shareCount: int("shareCount").default(0),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+}, (table) => ({
+  userCreatedIdx: index("share_user_created_idx").on(table.userId, table.createdAt),
+  typeIdx: index("share_type_idx").on(table.cardType),
+}));
+
+export type ShareCard = typeof shareCards.$inferSelect;
+export type InsertShareCard = typeof shareCards.$inferInsert;
+
+/**
+ * Referrals - track user referrals
+ */
+export const referrals = mysqlTable("referrals", {
+  id: int("id").autoincrement().primaryKey(),
+  referrerId: int("referrerId").notNull(), // User who referred
+  refereeId: int("refereeId"), // User who was referred (NULL until signup)
+  referralCode: varchar("referralCode", { length: 20 }).notNull().unique(),
+  status: mysqlEnum("status", ["pending", "completed", "rewarded"]).default("pending").notNull(),
+  clickCount: int("clickCount").default(0),
+  conversionDate: timestamp("conversionDate"), // When referee signed up
+  rewardAmount: varchar("rewardAmount", { length: 30 }), // Commission earned
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+}, (table) => ({
+  referrerIdx: index("ref_referrer_idx").on(table.referrerId),
+  refereeIdx: index("ref_referee_idx").on(table.refereeId),
+  codeIdx: index("ref_code_idx").on(table.referralCode),
+  statusIdx: index("ref_status_idx").on(table.status),
+}));
+
+export type Referral = typeof referrals.$inferSelect;
+export type InsertReferral = typeof referrals.$inferInsert;
+
+/**
+ * User stats - aggregated statistics for sharing
+ */
+export const userStats = mysqlTable("userStats", {
+  userId: int("userId").primaryKey(),
+  totalPredictions: int("totalPredictions").default(0),
+  correctPredictions: int("correctPredictions").default(0),
+  accuracyPct: int("accuracyPct").default(0), // Calculated accuracy percentage
+  totalTrades: int("totalTrades").default(0),
+  winningTrades: int("winningTrades").default(0),
+  totalProfitLoss: varchar("totalProfitLoss", { length: 30 }).default("0"),
+  currentStreak: int("currentStreak").default(0), // Win streak
+  longestStreak: int("longestStreak").default(0),
+  achievements: json("achievements").$type<string[]>(), // ["first_trade", "10_win_streak", etc.]
+  level: int("level").default(1), // Gamification level
+  experiencePoints: int("experiencePoints").default(0),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type UserStat = typeof userStats.$inferSelect;
+export type InsertUserStat = typeof userStats.$inferInsert;
+
+/**
+ * Achievements - available achievements
+ */
+export const achievements = mysqlTable("achievements", {
+  id: int("id").autoincrement().primaryKey(),
+  code: varchar("code", { length: 50 }).notNull().unique(), // "first_trade", "10_win_streak"
+  name: varchar("name", { length: 100 }).notNull(),
+  description: text("description"),
+  icon: varchar("icon", { length: 100 }), // Icon name or URL
+  category: mysqlEnum("category", ["trading", "prediction", "social", "milestone"]).notNull(),
+  requirement: json("requirement").$type<Record<string, any>>(), // Conditions to unlock
+  rewardPoints: int("rewardPoints").default(0),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type Achievement = typeof achievements.$inferSelect;
+export type InsertAchievement = typeof achievements.$inferInsert;
+
+/**
+ * User achievements - unlocked achievements
+ */
+export const userAchievements = mysqlTable("userAchievements", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  achievementId: int("achievementId").notNull(),
+  unlockedAt: timestamp("unlockedAt").defaultNow().notNull(),
+  isShared: boolean("isShared").default(false),
+}, (table) => ({
+  userAchievementUnique: unique("user_achievement_unique").on(table.userId, table.achievementId),
+  userIdx: index("user_achievement_user_idx").on(table.userId),
+}));
+
+export type UserAchievement = typeof userAchievements.$inferSelect;
+export type InsertUserAchievement = typeof userAchievements.$inferInsert;

@@ -1,0 +1,1 @@
+ALTER TABLE `userStats` MODIFY COLUMN `achievements` json;

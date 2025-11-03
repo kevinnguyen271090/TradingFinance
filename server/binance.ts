@@ -1,40 +1,57 @@
 /**
  * Binance API client using direct REST API calls
- * No external dependencies needed
+ * WITH REDIS CACHING for performance optimization
  */
+
+import { cacheGetOrSet, CacheKeys, CacheTTL } from './lib/redis';
 
 const BINANCE_API_BASE = 'https://api.binance.com';
 
 /**
  * Get current price for a symbol
+ * CACHED: 30 seconds
  */
 export async function getCurrentPrice(symbol: string): Promise<string> {
-  try {
-    const response = await fetch(`${BINANCE_API_BASE}/api/v3/ticker/price?symbol=${symbol}`);
-    const data = await response.json();
-    return data.price || '0';
-  } catch (error) {
-    console.error('Error fetching price:', error);
-    return '0';
-  }
+  return cacheGetOrSet(
+    CacheKeys.binancePrice(symbol),
+    async () => {
+      try {
+        const response = await fetch(`${BINANCE_API_BASE}/api/v3/ticker/price?symbol=${symbol}`);
+        const data = await response.json();
+        return data.price || '0';
+      } catch (error) {
+        console.error('Error fetching price:', error);
+        return '0';
+      }
+    },
+    { ttl: CacheTTL.VERY_SHORT } // 30 seconds
+  );
 }
 
 /**
  * Get 24h ticker data
+ * CACHED: 30 seconds
  */
 export async function get24hTicker(symbol: string) {
-  try {
-    const response = await fetch(`${BINANCE_API_BASE}/api/v3/ticker/24hr?symbol=${symbol}`);
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error('Error fetching 24h ticker:', error);
-    return null;
-  }
+  return cacheGetOrSet(
+    CacheKeys.binanceTicker(symbol),
+    async () => {
+      try {
+        const response = await fetch(`${BINANCE_API_BASE}/api/v3/ticker/24hr?symbol=${symbol}`);
+        const data = await response.json();
+        return data;
+      } catch (error) {
+        console.error('Error fetching 24h ticker:', error);
+        return null;
+      }
+    },
+    { ttl: CacheTTL.VERY_SHORT } // 30 seconds
+  );
 }
 
 /**
  * Get historical klines (candlestick data)
+ * CACHED: 5 minutes for recent data
  */
 export async function getKlines(params: {
   symbol: string;
@@ -43,6 +60,12 @@ export async function getKlines(params: {
   startTime?: number;
   endTime?: number;
 }) {
+  const limit = params.limit || 100;
+  const cacheKey = CacheKeys.binanceKlines(params.symbol, params.interval, limit);
+  
+  return cacheGetOrSet(
+    cacheKey,
+    async () => {
   try {
     const queryParams = new URLSearchParams({
       symbol: params.symbol,
@@ -57,23 +80,26 @@ export async function getKlines(params: {
     const data = await response.json();
     
     // Transform to more usable format
-    return data.map((k: any[]) => ({
-      openTime: k[0],
-      open: k[1],
-      high: k[2],
-      low: k[3],
-      close: k[4],
-      volume: k[5],
-      closeTime: k[6],
-      quoteVolume: k[7],
-      trades: k[8],
-      baseAssetVolume: k[9],
-      quoteAssetVolume: k[10],
-    }));
-  } catch (error) {
-    console.error('Error fetching klines:', error);
-    return [];
-  }
+      return data.map((k: any[]) => ({
+        openTime: k[0],
+        open: k[1],
+        high: k[2],
+        low: k[3],
+        close: k[4],
+        volume: k[5],
+        closeTime: k[6],
+        quoteVolume: k[7],
+        trades: k[8],
+        baseAssetVolume: k[9],
+        quoteAssetVolume: k[10],
+      }));
+    } catch (error) {
+      console.error('Error fetching klines:', error);
+      return [];
+    }
+    },
+    { ttl: CacheTTL.SHORT } // 5 minutes
+  );
 }
 
 /**

@@ -7,4 +7,9 @@ export const ENV = {
   isProduction: process.env.NODE_ENV === "production",
   forgeApiUrl: process.env.BUILT_IN_FORGE_API_URL ?? "",
   forgeApiKey: process.env.BUILT_IN_FORGE_API_KEY ?? "",
+  // Redis caching
+  upstashRedisUrl: process.env.UPSTASH_REDIS_REST_URL ?? "",
+  upstashRedisToken: process.env.UPSTASH_REDIS_REST_TOKEN ?? "",
+  // Email notifications
+  resendApiKey: process.env.RESEND_API_KEY ?? "",
 };

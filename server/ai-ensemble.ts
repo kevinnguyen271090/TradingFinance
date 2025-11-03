@@ -4,6 +4,7 @@
  */
 
 import { invokeLLM } from './_core/llm';
+import { cacheGetOrSet, CacheKeys, CacheTTL } from './lib/redis';
 
 export type AIProvider = 'qwen' | 'deepseek' | 'consensus';
 
@@ -307,16 +308,32 @@ export function calculateConsensus(
 
 /**
  * Main function: Get ensemble analysis for a symbol
+ * WITH REDIS CACHING (24h TTL)
  */
 export async function getEnsembleAnalysis(data: MarketData): Promise<EnsembleResult> {
-  // Run both AI analyses in parallel
-  const [qwenAnalysis, deepseekAnalysis] = await Promise.all([
-    analyzeWithQwen(data),
-    analyzeWithDeepSeek(data),
-  ]);
+  // Generate cache key based on symbol and current price range
+  // Round price to nearest 1% to allow cache hits for similar prices
+  const priceKey = Math.round(data.currentPrice * 100) / 100;
+  const cacheKey = `ai:ensemble:${data.symbol}:${priceKey}`;
 
-  // Calculate consensus
-  const result = calculateConsensus(qwenAnalysis, deepseekAnalysis);
+  // Try to get from cache first
+  const result = await cacheGetOrSet<EnsembleResult>(
+    cacheKey,
+    async () => {
+      console.log(`[AI Ensemble] Cache MISS for ${data.symbol}, running analysis...`);
+      
+      // Run both AI analyses in parallel
+      const [qwenAnalysis, deepseekAnalysis] = await Promise.all([
+        analyzeWithQwen(data),
+        analyzeWithDeepSeek(data),
+      ]);
 
+      // Calculate consensus
+      return calculateConsensus(qwenAnalysis, deepseekAnalysis);
+    },
+    { ttl: CacheTTL.VERY_LONG } // 24 hours
+  );
+
+  console.log(`[AI Ensemble] Returning ${result ? 'cached' : 'fresh'} analysis for ${data.symbol}`);
   return result;
 }

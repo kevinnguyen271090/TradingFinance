@@ -6,8 +6,11 @@ import { z } from "zod";
 import * as db from "./db";
 import * as binance from "./binance";
 import * as mlPredictions from "./ml-predictions";
+import * as onChain from "./on-chain";
+import * as mta from "./mta";
 import { getEnsembleAnalysis, type MarketData } from "./ai-ensemble";
 import { predictions as predictionsTable } from "../drizzle/schema";
+import * as sentiment from "./sentiment";
 import { desc, and, gte, lte, eq as eqOp } from "drizzle-orm";
 
 export const appRouter = router({
@@ -214,6 +217,39 @@ export const appRouter = router({
           console.error('Error fetching klines:', error);
           return [];
         }
+      }),
+  }),
+
+  // Multi-Timeframe Analysis
+  mta: router({
+    get: publicProcedure
+      .input(z.object({
+        symbol: z.string(),
+      }))
+      .query(async ({ input }) => {
+        return mta.getMultiTimeframeAnalysis(input.symbol);
+      }),
+  }),
+
+  // On-Chain Data
+  onChain: router({
+    get: publicProcedure
+      .input(z.object({
+        symbol: z.string(),
+      }))
+      .query(async ({ input }) => {
+        return onChain.getOnChainData(input.symbol);
+      }),
+  }),
+
+  // Sentiment Analysis
+  sentiment: router({
+    get: publicProcedure
+      .input(z.object({
+        symbol: z.string(),
+      }))
+      .query(async ({ input }) => {
+        return sentiment.getSentiment(input.symbol);
       }),
   }),
 

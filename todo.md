@@ -98,17 +98,14 @@
 
 ## Phase 2: Advanced Features (Priority-Based Roadmap)
 
-### P0 - Quick Wins (Weeks 1-2) - CRITICAL
-- [ ] Social Sharing: Share cards with prediction accuracy, profit/loss, achievements
-- [ ] Social Sharing: One-click sharing to Twitter, Facebook, Telegram, Discord
-- [ ] Social Sharing: Referral tracking with unique links
-- [ ] Referral Program: 20% lifetime commission for referrers
-- [ ] Referral Program: 1 month free trial for referees
-- [ ] Referral Program: Leaderboard for top referrers
-- [ ] Push Notifications: Price targets hit alerts
-- [ ] Push Notifications: New AI signals (high confidence)
-- [ ] Push Notifications: Prediction results notifications
-- [ ] Push Notifications: Achievement unlocked alerts
+### Advanced ML Models
+- [x] On-Chain Data Analysis
+- [x] Multi-Timeframe Analysis (MTA)
+- [ ] Implement XGBoost
+- [ ] Implement Prophet
+- [ ] Ensemble model combining all 5 models
+- [ ] Regime detection
+- [ ] Feature engineering (200+ features)
 
 ### P0 - Foundation Features (Weeks 3-8) - CRITICAL
 - [ ] Backtesting System: Historical data replay engine (5 years OHLCV)
@@ -168,15 +165,27 @@
 - [ ] Community Forum: Q&A with moderators
 - [ ] Community Forum: Discord integration
 
-### Additional Features (Lower Priority)
-- [ ] Correlation Matrix & Pair Trading: Real-time correlation heatmap
-- [ ] Correlation Matrix & Pair Trading: Identify divergences
-- [ ] Arbitrage Detection: Price differences across exchanges
-- [ ] Market Screener: Filter by volume, volatility, momentum
-- [ ] Price Alerts: Custom price alerts
-- [ ] Email Notifications: Daily summary emails
-- [ ] Export Trade History: CSV/Excel export
-- [ ] Tax Reports: Capital gains/losses calculation
+### Social Features
+- [ ] Community predictions
+- [ ] Leaderboard
+- [ ] User profiles
+- [ ] Upvote/downvote system
+- [ ] Comments
+
+### Education Center
+- [ ] Trading guides
+- [ ] Technical analysis tutorials
+- [ ] Risk management lessons
+- [ ] Video tutorials
+- [ ] Glossary
+
+### Additional Features
+- [x] News & sentiment analysis
+- [ ] Market screener
+- [ ] Price alerts
+- [ ] Email notifications
+- [ ] Export trade history
+- [ ] Tax reports
 
 ---
 

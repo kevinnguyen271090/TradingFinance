@@ -102,7 +102,9 @@ export function AdvancedPriceChart({ symbol }: AdvancedPriceChartProps) {
     }
 
     // Create chart
-    const chart = createChart(chartContainerRef.current, {
+    let chart: IChartApi;
+    try {
+      chart = createChart(chartContainerRef.current, {
       layout: {
         background: { type: ColorType.Solid, color: 'transparent' },
         textColor: '#9CA3AF',
@@ -121,11 +123,21 @@ export function AdvancedPriceChart({ symbol }: AdvancedPriceChartProps) {
         borderColor: '#2B3139',
       },
     });
+    } catch (error) {
+      console.error('[Chart] Error creating chart:', error);
+      return;
+    }
 
     chartRef.current = chart;
 
-    // Add candlestick series
-    const candlestickSeries = (chart as any).addCandlestickSeries({
+    // Add candlestick series - use type assertion for v5 compatibility
+    const chartAny = chart as any;
+    if (!chartAny || typeof chartAny.addCandlestickSeries !== 'function') {
+      console.error('[Chart] addCandlestickSeries method not found');
+      return;
+    }
+
+    const candlestickSeries = chartAny.addCandlestickSeries({
       upColor: '#10B981',
       downColor: '#EF4444',
       borderVisible: false,
@@ -142,7 +154,12 @@ export function AdvancedPriceChart({ symbol }: AdvancedPriceChartProps) {
       close: parseFloat(k.close),
     }));
 
-    candlestickSeries.setData(chartData);
+    try {
+      candlestickSeries.setData(chartData);
+    } catch (error) {
+      console.error('[Chart] Error setting candlestick data:', error);
+      return;
+    }
 
     // Calculate and add Moving Averages
     const closePrices = klines.map((k: any) => parseFloat(k.close));
@@ -160,7 +177,7 @@ export function AdvancedPriceChart({ symbol }: AdvancedPriceChartProps) {
         .filter((d) => d.value !== null) as { time: number; value: number }[];
 
       if (maData.length > 0) {
-        const lineSeries = (chart as any).addLineSeries({
+        const lineSeries = chartAny.addLineSeries({
           color: ma.color,
           lineWidth: 2,
           title: ma.label,
@@ -184,7 +201,7 @@ export function AdvancedPriceChart({ symbol }: AdvancedPriceChartProps) {
         .filter((d) => d.value !== null) as { time: number; value: number }[];
 
       if (rsiData.length > 0) {
-        const rsiSeries = (chart as any).addLineSeries({
+        const rsiSeries = chartAny.addLineSeries({
           color: '#9333EA',
           lineWidth: 2,
           title: 'RSI',

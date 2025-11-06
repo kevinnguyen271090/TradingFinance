@@ -138,12 +138,12 @@ export async function getSymbolById(symbolId: number): Promise<Symbol | undefine
   return result.length > 0 ? result[0] : undefined;
 }
 
-export async function getSymbolBySymbol(symbol: string): Promise<Symbol | undefined> {
+export async function getSymbolBySymbol(symbol: string): Promise<Symbol | null> {
   const db = await getDb();
-  if (!db) return undefined;
+  if (!db) return null;
 
   const result = await db.select().from(symbols).where(eq(symbols.symbol, symbol)).limit(1);
-  return result.length > 0 ? result[0] : undefined;
+  return result.length > 0 ? result[0] : null;
 }
 
 export async function upsertSymbol(symbol: InsertSymbol): Promise<void> {

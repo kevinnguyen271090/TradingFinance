@@ -28,6 +28,10 @@ async function findAvailablePort(startPort: number = 3000): Promise<number> {
 }
 
 async function startServer() {
+  console.log('[Server] Starting server...');
+  console.log('[Server] NODE_ENV:', process.env.NODE_ENV);
+  console.log('[Server] PORT:', process.env.PORT || '3000');
+  
   const app = express();
   const server = createServer(app);
   // Configure body parser with larger size limit for file uploads
@@ -57,9 +61,19 @@ async function startServer() {
     console.log(`Port ${preferredPort} is busy, using port ${port} instead`);
   }
 
-  server.listen(port, () => {
-    console.log(`Server running on http://localhost:${port}/`);
+  server.listen(port, '0.0.0.0', () => {
+    console.log(`[Server] ✅ Server running on http://0.0.0.0:${port}/`);
+    console.log(`[Server] Environment: ${process.env.NODE_ENV}`);
+  });
+  
+  server.on('error', (error) => {
+    console.error('[Server] ❌ Server error:', error);
+    process.exit(1);
   });
 }
 
-startServer().catch(console.error);
+startServer().catch((error) => {
+  console.error('[Server] ❌ Fatal error during startup:', error);
+  console.error('[Server] Stack trace:', error.stack);
+  process.exit(1);
+});

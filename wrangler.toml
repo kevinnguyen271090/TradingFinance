@@ -1,0 +1,81 @@
+# Cloudflare Workers Configuration for CryptoTrader Pro
+# https://developers.cloudflare.com/workers/wrangler/configuration/
+
+name = "cryptotrader-pro-api"
+main = "server/_core/index.ts"
+compatibility_date = "2024-01-01"
+compatibility_flags = ["nodejs_compat"]
+
+# Account ID
+account_id = "4045852ea7bb1240a69626447fb55ea3"
+
+# Workers AI (for predictions)
+[ai]
+binding = "AI"
+
+# KV Namespace for sessions
+[[kv_namespaces]]
+binding = "SESSIONS"
+id = "0bd284c08175443cb69b672f52f0d406"
+
+# R2 Bucket for file storage
+[[r2_buckets]]
+binding = "FILES"
+bucket_name = "crypto-trading-files"
+
+# Environment Variables (non-sensitive)
+[vars]
+NODE_ENV = "production"
+VITE_APP_TITLE = "CryptoTrader Pro"
+ENABLE_AUTO_TRADING = "true"
+ENABLE_SENTIMENT_ANALYSIS = "true"
+ENABLE_ONCHAIN_DATA = "true"
+ENABLE_AI_PREDICTIONS = "true"
+ENABLE_EMAIL_NOTIFICATIONS = "true"
+
+# Cache TTL settings (in seconds)
+CACHE_TTL_AI_PREDICTIONS = "86400"
+CACHE_TTL_SENTIMENT = "3600"
+CACHE_TTL_ONCHAIN = "900"
+CACHE_TTL_PRICES = "30"
+
+# Rate limiting (requests per minute)
+RATE_LIMIT_AI = "10"
+RATE_LIMIT_API = "60"
+
+# Logging
+LOG_LEVEL = "info"
+ENABLE_ANALYTICS = "true"
+
+# Build configuration
+[build]
+command = "pnpm build:worker"
+
+# Routes (will be auto-configured after Pages deployment)
+# [[routes]]
+# pattern = "api.cryptotrader.com/*"
+# zone_name = "cryptotrader.com"
+
+# Development settings
+[env.development]
+name = "cryptotrader-pro-api-dev"
+
+[env.development.vars]
+NODE_ENV = "development"
+LOG_LEVEL = "debug"
+
+# Staging settings
+[env.staging]
+name = "cryptotrader-pro-api-staging"
+
+[env.staging.vars]
+NODE_ENV = "staging"
+
+# Limits
+[limits]
+cpu_ms = 50000  # 50 seconds max CPU time
+
+# Observability
+[observability]
+enabled = true
+head_sampling_rate = 1.0

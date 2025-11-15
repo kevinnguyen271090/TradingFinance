@@ -1,6 +1,7 @@
 import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
+import { supabaseAuthRouter } from "./_core/supabaseAuthRouter";
 import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
 import { z } from "zod";
 import * as db from "./db";
@@ -15,6 +16,9 @@ import { desc, and, gte, lte, eq as eqOp } from "drizzle-orm";
 
 export const appRouter = router({
   system: systemRouter,
+  
+  // Supabase authentication
+  supabaseAuth: supabaseAuthRouter,
   
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),

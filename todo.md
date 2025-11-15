@@ -436,3 +436,22 @@
 - [ ] Test watchlist add/remove functionality
 - [ ] Verify prediction creation flow
 - [ ] Test auto trading configuration
+
+
+---
+
+## 🚀 Railway Deployment - Supabase Auth Migration (URGENT)
+
+### Authentication System Replacement
+- [x] Install @supabase/supabase-js and @supabase/auth-helpers-react packages
+- [x] Create Supabase auth client configuration
+- [x] Replace Manus OAuth with Supabase Auth in server
+- [x] Update login/logout logic to use Supabase
+- [x] Create supabaseAuthRouter with signIn/signUp/signOut
+- [x] Create login page with email/password
+- [x] Add login route to App.tsx
+- [x] Update Home.tsx to link to /login
+- [x] Add Supabase env vars to Railway (SUPABASE_URL, SUPABASE_ANON_KEY)
+- [ ] Test authentication flow on Railway deployment
+- [ ] Update useAuth hook to check Supabase session (optional enhancement)
+

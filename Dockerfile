@@ -7,8 +7,9 @@ RUN corepack enable && corepack prepare pnpm@latest --activate
 # Set working directory
 WORKDIR /app
 
-# Copy package files
+# Copy package files and patches directory
 COPY package.json pnpm-lock.yaml ./
+COPY patches ./patches
 
 # Install dependencies (including devDependencies for tsx)
 RUN pnpm install --frozen-lockfile

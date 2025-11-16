@@ -4,7 +4,7 @@
  */
 
 import type { FetchCreateContextFnOptions } from '@trpc/server/adapters/fetch';
-import type { User } from '../../drizzle/schema';
+import type { User } from '../../drizzle/schema.postgres';
 import type { Env } from './worker';
 
 export type WorkerContext = {

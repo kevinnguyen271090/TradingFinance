@@ -10,7 +10,7 @@
  */
 
 import { getDb } from "./db";
-import { predictions as predictionsTable, symbols } from "../drizzle/schema";
+import { predictions as predictionsTable, symbols } from "../drizzle/schema.postgres";
 import { eq } from "drizzle-orm";
 
 export type PredictionTimeframe = 'short' | 'medium' | 'long';

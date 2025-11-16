@@ -1,9 +1,9 @@
 import { eq, and, desc, inArray } from "drizzle-orm";
-import { drizzle } from "drizzle-orm/mysql2";
-import { 
-  InsertUser, 
-  users, 
-  symbols, 
+import { drizzle } from "drizzle-orm/postgres-js";
+import {
+  InsertUser,
+  users,
+  symbols,
   InsertSymbol,
   Symbol,
   userWatchlists,
@@ -18,8 +18,9 @@ import {
   InsertHistoricalPrice,
   HistoricalPrice,
   exchangeConnections
-} from "../drizzle/schema";
+} from "../drizzle/schema.postgres";
 import { ENV } from './_core/env';
+import postgres from 'postgres';
 
 let _db: ReturnType<typeof drizzle> | null = null;
 
@@ -27,7 +28,8 @@ let _db: ReturnType<typeof drizzle> | null = null;
 export async function getDb() {
   if (!_db && process.env.DATABASE_URL) {
     try {
-      _db = drizzle(process.env.DATABASE_URL);
+      const client = postgres(process.env.DATABASE_URL);
+      _db = drizzle(client);
     } catch (error) {
       console.warn("[Database] Failed to connect:", error);
       _db = null;
@@ -90,7 +92,8 @@ export async function upsertUser(user: InsertUser): Promise<void> {
       updateSet.lastSignedIn = new Date();
     }
 
-    await db.insert(users).values(values).onDuplicateKeyUpdate({
+    await db.insert(users).values(values).onConflictDoUpdate({
+      target: users.openId,
       set: updateSet,
     });
   } catch (error) {
@@ -150,7 +153,8 @@ export async function upsertSymbol(symbol: InsertSymbol): Promise<void> {
   const db = await getDb();
   if (!db) return;
 
-  await db.insert(symbols).values(symbol).onDuplicateKeyUpdate({
+  await db.insert(symbols).values(symbol).onConflictDoUpdate({
+    target: symbols.symbol,
     set: {
       name: symbol.name,
       type: symbol.type,
@@ -193,7 +197,8 @@ export async function addToWatchlist(userId: number, symbolId: number): Promise<
   await db.insert(userWatchlists).values({
     userId,
     symbolId,
-  }).onDuplicateKeyUpdate({
+  }).onConflictDoUpdate({
+    target: [userWatchlists.userId, userWatchlists.symbolId],
     set: { createdAt: new Date() },
   });
 }
@@ -226,7 +231,8 @@ export async function upsertUserPreferences(prefs: InsertUserPreference): Promis
   const db = await getDb();
   if (!db) return;
 
-  await db.insert(userPreferences).values(prefs).onDuplicateKeyUpdate({
+  await db.insert(userPreferences).values(prefs).onConflictDoUpdate({
+    target: userPreferences.userId,
     set: {
       riskTolerance: prefs.riskTolerance,
       defaultCapital: prefs.defaultCapital,
@@ -328,7 +334,8 @@ export async function saveBinanceKeys(userId: number, apiKey: string, apiSecret:
     apiKeyEncrypted: apiKey, // TODO: Encrypt
     apiSecretEncrypted: apiSecret, // TODO: Encrypt
     isActive: true,
-  }).onDuplicateKeyUpdate({
+  }).onConflictDoUpdate({
+    target: [exchangeConnections.userId, exchangeConnections.exchange],
     set: {
       apiKeyEncrypted: apiKey,
       apiSecretEncrypted: apiSecret,

@@ -10,7 +10,7 @@ import * as mlPredictions from "./ml-predictions";
 import * as onChain from "./on-chain";
 import * as mta from "./mta";
 import { getEnsembleAnalysis, type MarketData } from "./ai-ensemble";
-import { predictions as predictionsTable } from "../drizzle/schema";
+import { predictions as predictionsTable } from "../drizzle/schema.postgres";
 import * as sentiment from "./sentiment";
 import { desc, and, gte, lte, eq as eqOp } from "drizzle-orm";
 

@@ -1,3 +1,7 @@
+/**
+ * CryptoTrader Pro - Main App Component
+ * Updated: 2025-11-17 - Supabase Auth Integration
+ */
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/NotFound";

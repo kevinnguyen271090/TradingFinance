@@ -9,7 +9,11 @@ export const APP_LOGO =
 /**
  * Get local login page URL
  * Using Supabase Auth instead of external OAuth
+ * Updated: 2025-11-17
  */
-export const getLoginUrl = () => {
+export const getLoginUrl = (): string => {
   return "/login";
 };
+
+// Verify this file is loaded
+console.log("[const.ts] Loaded - version 2025-11-17");
